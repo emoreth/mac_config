@@ -2,7 +2,8 @@ alias ll="ls -lah"
 
 # GIT
 alias gp="git push"
-alias gl="git pull" 
+alias gl="git pull"
+alias glr="git pull --rebase"
 alias gc="git commit"
 alias gca='git commit -a'
 alias gco="git checkout"
@@ -13,6 +14,8 @@ alias gd="git diff"
 alias ga="git add"
 alias gf="git fetch"
 alias gr='git reset'
+alias gst="git stash"
+alias gstp="git stash pop"
 
 
 # Ruby

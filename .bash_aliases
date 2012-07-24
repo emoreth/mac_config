@@ -2,11 +2,18 @@ alias ll="ls -lah"
 
 # GIT
 alias gp="git push"
+alias gpo="git push origin"
+alias gpom="git push origin master"
 alias gl="git pull"
+alias glo="git pull origin"
+alias glom="git pull origin master"
 alias glr="git pull --rebase"
+alias glro="git pull --rebase origin"
+alias glrom="git pull --rebase origin master"
 alias gc="git commit"
 alias gca='git commit -a'
 alias gco="git checkout"
+alias gcom="git checkout master"
 alias gb="git branch"
 alias gm="git merge"
 alias gs="git status"
@@ -16,7 +23,6 @@ alias gf="git fetch"
 alias gr='git reset'
 alias gst="git stash"
 alias gstp="git stash pop"
-
 
 # Ruby
 alias gel="gem list"

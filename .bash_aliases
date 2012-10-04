@@ -27,6 +27,10 @@ alias gf="git fetch"
 alias gr='git reset'
 alias gst="git stash"
 alias gstp="git stash pop"
+alias gmm="git merge master"
+alias gmd="git merge devel"
+alias grs="git reset --soft"
+alias grh="git reset --hard"
 
 # Ruby
 alias gel="gem list"

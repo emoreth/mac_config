@@ -8,6 +8,8 @@ export RUBY_HEAP_FREE_MIN=500000
 
 export CLICOLOR=true
 export LSCOLORS=Exfxcxdxbxegedabagacad
+export HISTTIMEFORMAT="%d/%m/%y %T "
+export HISTFILESIZE=2000000
 
 parse_svn_url() {
   /usr/bin/svn info 2> /dev/null | grep -E "^U(\w|:| )+(\/{2})(\w|\.)+" | sed -E s/.+\\\/{2}\(\\\w\|\\\.\)+/@svn:/

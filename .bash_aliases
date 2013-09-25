@@ -27,6 +27,12 @@ __define_git_completion () {
   "
 }
 
+__gitshortcut () {
+    type _git_$2_shortcut &>/dev/null || __define_git_completion $1 $2
+    alias $1="git $2 $3"
+    complete -o default -o nospace -F _git_$2_shortcut $1
+}
+
 
 # GIT
 #alias gp="git push"

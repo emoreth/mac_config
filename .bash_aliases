@@ -73,6 +73,7 @@ __gitshortcut  gd       diff
 __gitshortcut  ga       add
 #alias gf="git fetch"
 __gitshortcut  gf       fetch
+alias gfp="git fetch --prune"
 #alias gr='git reset'
 __gitshortcut  gr       reset
 #alias gst="git stash"

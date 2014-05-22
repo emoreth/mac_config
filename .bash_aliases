@@ -36,7 +36,7 @@ __gitshortcut () {
 
 # GIT
 #alias gp="git push"
-_gitshortcut  gp       push
+__gitshortcut  gp       push
 alias gpo="git push origin"
 alias gpom="git push origin master"
 alias gpod="git push origin devel"
@@ -84,6 +84,12 @@ alias gmd="git merge devel"
 alias grs="git reset --soft"
 alias grh="git reset --hard"
 
+alias ghfs="git hub-feature start"
+alias ghfu="git hub-feature update"
+alias ghfp="git hub-feature publish"
+alias ghfr="git hub-feature review"
+alias ghff="git hub-feature finish"
+
 # Ruby
 alias gel="gem list"
 
@@ -95,11 +101,32 @@ alias sg='script/generate'
 
 alias rs="rails server -u"
 alias rc="rails console"
+alias rg="rails generate"
+alias rgm="rails generate migration"
 alias bi="bundle install"
+
+alias srg="spring rails generate"
+alias srgm="spring rails generate migration"
+alias srs="spring rails server"
+alias src="spring rails console"
+
+alias zrs="zeus server"
+alias zrc="zeus console"
 
 alias mi="rake db:migrate"
 alias mir="rake db:migrate:redo"
 alias rsp="rake spec"
+
+alias rr="rake routes"
+alias srr="spring rake routes"
+
+alias smi="spring rake db:migrate"
+alias smir="spring rake db:migrate:redo"
+alias srsp="spring rake spec"
+
+alias zmi="zeus rake db:migrate"
+alias zmir="zeus rake db:migrate:redo"
+alias zrsp="zeus rake spec"
 
 function rcf(){
   rake cucumber FEATURE=$1

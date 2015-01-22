@@ -1,0 +1,10 @@
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+brew install rails-completion
+brew install rake-completion
+brew install phpmyadmin
+brew install v8
+brew install tree
+brew install wget
+brew install caskroom/cask/brew-cask
+brew cask install xquartz
+brew install meld

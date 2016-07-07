@@ -89,6 +89,7 @@ alias ghfu="git hub-feature update"
 alias ghfp="git hub-feature publish"
 alias ghfr="git hub-feature review"
 alias ghff="git hub-feature finish"
+alias gstrp="echo '======= Stashing... =======' && gst && echo '======= PULL Rebasing... =======' && glr && echo '======= Stash Popping... =======' && gstp"
 
 # Ruby
 alias gel="gem list"

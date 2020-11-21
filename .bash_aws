@@ -1,0 +1,76 @@
+#!/bin/bash
+
+function iniget() {
+  if [[ $# -lt 2 || ! -f $1 ]]; then
+    echo "usage: iniget <file> [--list|<section> [key]]"
+    return 1
+  fi
+  local inifile=$1
+
+  if [ "$2" == "--list" ]; then
+    for section in $(cat $inifile | grep "\[" | sed -e "s#\[##g" | sed -e "s#\]##g"); do
+      echo $section
+    done
+    return 0
+  fi
+
+  local section=$2
+  local key
+  [ $# -eq 3 ] && key=$3
+
+  # https://stackoverflow.com/questions/49399984/parsing-ini-file-in-bash
+  # This awk line turns ini sections => [section-name]key=value
+  local lines=$(awk -F ' *= *' '{ if ($1 ~ /^\[/) section=$1; else if ($1 !~ /^$/) print section $1 "=" "\"" $2 "\"" }' $inifile | sed "s/profile //")
+  for line in $lines; do
+    if [[ "$line" = \[$section\]* ]]; then
+      local keyval=$(echo $line | sed -e "s/^\[$section\]//")
+      if [[ -z "$key" ]]; then
+        echo $keyval
+      else
+        if [[ "$keyval" = $key=* ]]; then
+          echo $(echo $keyval | sed -e "s/^$key=//")
+        fi
+      fi
+    fi
+  done
+}
+
+aws-sso-creds() {
+
+  local role_name
+  local account_id
+  local token
+  local session_file
+  local result
+  local cmd
+  local expiration
+
+  role_name=$(iniget $HOME/.aws/config $AWS_PROFILE sso_role_name)
+  account_id=$(iniget $HOME/.aws/config $AWS_PROFILE sso_account_id)
+
+  session_file=$(find $HOME/.aws/sso/cache/ -type f -print| awk -F/ ' length($NF)  == 45 ')
+  token=$(jq .accessToken $session_file)
+
+  cmd="aws sso get-role-credentials --role-name=$role_name --account-id=$account_id --access-token=$token"
+  result=$(eval $cmd)
+
+  expiration=$(echo $result | jq .roleCredentials.expiration)
+  echo "AWS keys for profile '$AWS_PROFILE', valid until $(date -r "$(($expiration/1000))")"
+  echo "===================================================="
+  echo "AWS_ACCESS_KEY_ID=$( echo $result | jq .roleCredentials.accessKeyId)"
+  echo "AWS_SECRET_ACCESS_KEY=$( echo $result | jq .roleCredentials.secretAccessKey)"
+  echo "===================================================="
+  echo "export AWS_ACCESS_KEY_ID=$( echo $result | jq .roleCredentials.accessKeyId)"
+  echo "export AWS_SECRET_ACCESS_KEY=$( echo $result | jq .roleCredentials.secretAccessKey)"
+  echo "===================================================="
+}
+
+
+awsenv(){
+  export AWS_PROFILE="$1"
+  export AWS_DEFAULT_PROFILE="$1"
+}
+
+awslogin(){
+  aws sso login --profile "$1"
+}

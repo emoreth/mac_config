@@ -1,6 +1,8 @@
 #!/bin/sh
 alias ll="ls -lah"
 
+source /usr/local/etc/profile.d/bash_completion.sh
+source /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash
 
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
@@ -9,7 +11,7 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-_completion_loader git
+#_completion_loader git
 
 
 
@@ -34,9 +36,13 @@ __gitshortcut () {
 }
 
 
+
 # GIT
+alias gda="git branch | grep -v "master" | xargs git branch -d"
+alias gDa="git branch | grep -v "master" | xargs git branch -D"
 #alias gp="git push"
 __gitshortcut  gp       push
+__gitshortcut  gpu       push -u
 alias gpo="git push origin"
 alias gpom="git push origin master"
 alias gpod="git push origin devel"
@@ -61,6 +67,7 @@ __gitshortcut  gca      commit -a
 __gitshortcut  gco      checkout
 alias gcom="git checkout master"
 alias gcod="git checkout devel"
+alias gapf="git commit --amend --no-edit -n  && git push -f"
 #alias gb="git branch"
 __gitshortcut  gb       branch
 #alias gm="git merge"
@@ -90,10 +97,67 @@ alias ghfp="git hub-feature publish"
 alias ghfr="git hub-feature review"
 alias ghff="git hub-feature finish"
 alias gstrp="echo '======= Stashing... =======' && gst && echo '======= PULL Rebasing... =======' && glr && echo '======= Stash Popping... =======' && gstp"
+alias gcop="gco pm-develop"
+alias gmp="gm pm-develop"
+#alias hpr="hub pull-request -a emoreth"
+alias ppr="gp && hpr && pr"
+
+
+alias jsonexplore="echo '' | fzf --print-query --preview \"cat *.json | jq {q}\""
+
+# Hub pull request
+function hpr() {
+  FILE=`pwd`/.reviewers
+  echo $FILE
+  if [ -f $FILE ]; then
+    hub pull-request -a emoreth -r `cat $FILE`
+  else
+    hub pull-request -a emoreth
+  fi
+}
 
 # Ruby
 alias gel="gem list"
 
+# Circle CI
+function ci() {
+    open https://circleci.com/gh/carta/workflows/$(basename `git rev-parse --show-toplevel`)/tree/$(echo $(git rev-parse --abbrev-ref HEAD) | sed 's/\//%2F/g')
+}
+
+function pr() {
+    open $(hub pr list -h  "$(git rev-parse --abbrev-ref HEAD)" -f "%i %t -> %U%n" | grep -E "http.+" -o)
+}
+
+# Django
+alias mr="./manage.py runserver_plus --print-sql"
+alias mm="./manage.py migrate"
+alias mkm="./manage.py makemigrations"
+alias ms="./manage.py shell_plus --print-sql"
+alias mt="./manage.py test"
+alias mtk="./manage.py test -k"
+alias pytest="pytest --spec"
+alias pu="pytest --spec ./tests/unit"
+
+# Postgres
+alias plog="> /usr/local/var/postgresql@9.6/pg_log/postgresql.log && tail -f /usr/local/var/postgresql@9.6/pg_log/postgresql.log"
+
+# Docker
+alias dka='docker kill $(docker ps -q)'
+alias dps="docker ps"
+alias dpsa="docker ps -a"
+alias dr="./bin/run "
+alias drmm="./bin/run ./manage.py migrate"
+alias dms="./bin/run ./manage.py shell_plus --print-sql"
+alias drmkm="./bin/run ./manage.py makemigrations"
+alias dc="./bin/compose "
+alias dcl="./bin/compose local "
+alias dclu="./bin/compose local up"
+alias dcld="./bin/compose local down"
+alias dclb="./bin/compose local build"
+alias dclbn="./bin/compose local build --no-cache"
+alias dcbb="./bin/compose base build"
+alias dcbbn="./bin/compose base build --no-cache"
+alias dta="./bin/run 'isort -rc eshares/ boardroom/ && pytest --cov-branch --cov --cov-report=html --cov-fail-under=90'"
 
 # Rails
 alias ss="script/server -u "
@@ -129,6 +193,21 @@ alias zmi="zeus rake db:migrate"
 alias zmir="zeus rake db:migrate:redo"
 alias zrsp="zeus rake spec"
 
+
+# Kubernetes
+alias k="kubectl"
+alias kg="kubectl get"
+alias kx="kubectx"
+alias ks="kubens"
+alias kgp="k get pods"
+alias kgpy="k get pods -o yaml"
+alias kgs="k get services"
+alias kgsy="k get services -o yaml"
+alias kgd="k get deployments"
+alias kgdy="k get deployments -o yaml"
+alias kge="kubectl get events --sort-by=.metadata.creationTimestamp "
+alias kdp="k delete pod --wait=0 "
+
 function rcf(){
   rake cucumber FEATURE=$1
 }
@@ -138,6 +217,8 @@ function rcfjs(){
 function rsp(){
   rake spec SPEC=$1
 }
+
+
 
 #helpers
 alias gem_uninstall_all="gem list | cut -d\" \" -f1 | xargs gem uninstall -aIx" 

@@ -1,0 +1,96 @@
+# https://github.com/ankitpokhrel/jira-cli
+
+jc() {
+  jira issue create --no-input -t Task -s "${*:1}"
+}
+
+jcb() {
+  jira issue create --project DEV --type Bug --no-input -s "${*:1}"
+}
+
+jct() {
+  #  set -x
+  local PROJECT="DEV"
+
+  local args=("$@")
+  local summary=""
+  local body=""
+  local separator_found=false
+
+  for arg in "${args[@]}"; do
+
+    if [ "$arg" = "--" ]; then
+      separator_found=true
+    elif $separator_found; then
+      body="$body $arg"
+    else
+      summary="$summary $arg"
+    fi
+  done
+
+  # Poor man's string trimmer
+  summary=$(echo "$summary" | xargs)
+  body=$(echo "$body" | xargs)
+
+  echo "summary: $summary"
+  echo "body: $body"
+
+
+  local JIRA_EPIC=""
+  if test -f ".JIRA_EPIC"; then
+    JIRA_EPIC="--custom epiclink=$(cat .JIRA_EPIC)"
+  fi
+
+
+  local JIRA_COMMAND="jira issue create --project $PROJECT --type Task --no-input --summary  '$summary' --body '$body' $JIRA_EPIC"
+  #echo $JIRA_COMMAND
+  local ISSUE_CREATE=$(eval $JIRA_COMMAND)
+  local ISSUE_ID=$(echo $ISSUE_CREATE | grep -o -E 'browse\/.+' | sed 's/browse\///')
+  local LAST_CREATED=""
+  echo $ISSUE_CREATE
+
+  while [ "$ISSUE_ID" != "$LAST_CREATED" ]; do
+    # Call the function to update LAST_CREATED
+    echo "Waiting for $ISSUE_ID issue to show up in jira API"
+    LAST_CREATED=$(jira issue list --project $PROJECT --paginate 1 --no-headers --columns KEY --plain)
+    sleep 1
+  done
+
+  jira issue move --project $PROJECT $ISSUE_ID "To Do"
+
+  echo "To work on this issue run (or just paste it):"
+  echo "workon $ISSUE_ID"
+  echo -n "workon $ISSUE_ID" | pbcopy
+}
+
+workon() {
+  local PROJECT=$(echo $1 | sed -E 's/-[0-9]+//')
+  local branch_name=$(jira issue list -q"KEY=$1" --project $PROJECT --plain --columns KEY,SUMMARY --no-headers | sed 's/ /_/g; s/\t/_/g')
+  git checkout main
+  git fetch --prune
+  git pull --rebase
+  git checkout -b $branch_name
+  git push origin $branch_name
+  jira issue move "$1" "In Progress" --project $PROJECT
+  jira issue assign "$1" $(jira me) --project $PROJECT
+}
+
+workdone() {
+    local BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+    local TICKET_ID=$(echo $BRANCH_NAME | grep -E -o "^[A-Z]+-[0-9]+")
+    local PROJECT=$(echo $TICKET_ID | sed -E 's/-[0-9]+//')
+
+    if [[ -z "$TICKET_ID" ]]
+    then
+        echo "Error: Unable to find Jira ticket ID from branch name. Not doing anything."
+        return
+    fi
+
+    # We don't really care if the pr was already created
+    gh pr create --fill || true
+
+    jira issue move "$TICKET_ID" "Done" --project $PROJECT
+    git checkout main
+    git fetch --prune
+    gstrp
+}

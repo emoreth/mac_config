@@ -1,8 +1,8 @@
 #!/bin/sh
 alias ll="ls -lah"
 
-source /usr/local/etc/profile.d/bash_completion.sh
-source /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash
+source /etc/profile.d/bash_completion.sh
+#source /Library/Developer/CommandLineTools/usr/share/git-core/git-completion.bash
 
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then

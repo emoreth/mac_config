@@ -155,7 +155,35 @@ alias dka='docker kill $(docker ps -q)'
 alias dcb="docker compose build"
 
 alias taap="terraform apply -parallelism=30 -auto-approve"
-alias tp="terraform plan -parallelism=30"
+alias tp="terraform plan -parallelism=30 -lock=false"
+
+tpt() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: tpt module.module1 module.module2 ..."
+    return 1
+  fi
+
+  local targets=()
+  for module in "$@"; do
+    targets+=("-target=$module")
+  done
+
+  terraform plan -parallelism=30 -lock=false "${targets[@]}"
+}
+
+taapt() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: taapt module.module1 module.module2 ..."
+    return 1
+  fi
+
+  local targets=()
+  for module in "$@"; do
+    targets+=("-target=$module")
+  done
+
+  terraform apply -parallelism=30 -auto-approve "${targets[@]}"
+}
 
 
 alias unlock="xattr -dr com.apple.quarantine "
